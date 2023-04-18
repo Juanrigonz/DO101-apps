@@ -1,0 +1,71 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    app.openshift.io/route-disabled: 'false'
+    app.openshift.io/vcs-ref: ''
+    app.openshift.io/vcs-uri: 'https://github.com/Juanrigonz/DO101-apps'
+    openshift.io/generated-by: OpenShiftWebConsole
+  name: helloworld
+  namespace: argocd
+  labels:
+    app: helloworld
+    app.kubernetes.io/component: helloworld
+    app.kubernetes.io/instance: helloworld
+    app.kubernetes.io/name: helloworld
+    app.kubernetes.io/part-of: sample-app
+    app.openshift.io/runtime: nodejs
+    app.openshift.io/runtime-version: 16-ubi8
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - helloworld
+        from:
+          kind: ImageStreamTag
+          namespace: argocd
+          name: 'helloworld:latest'
+        lastTriggeredImage: >-
+          image-registry.openshift-image-registry.svc:5000/argocd/helloworld@sha256:bfa67b2cffe7da94f8b63276bdae45bb47e9789cbdad239ccc43cac801445fa1
+    - type: ConfigChange
+  replicas: 1
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    app: helloworld
+    deploymentconfig: helloworld
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: helloworld
+        deploymentconfig: helloworld
+    spec:
+      containers:
+        - name: helloworld
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/argocd/helloworld@sha256:bfa67b2cffe7da94f8b63276bdae45bb47e9789cbdad239ccc43cac801445fa1
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
