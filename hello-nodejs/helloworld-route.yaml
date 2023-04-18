@@ -1,0 +1,36 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: helloworld
+  namespace: argocd
+  labels:
+    app: helloworld
+    app.kubernetes.io/component: helloworld
+    app.kubernetes.io/instance: helloworld
+    app.kubernetes.io/name: helloworld
+    app.kubernetes.io/part-of: sample-app
+    app.openshift.io/runtime: nodejs
+    app.openshift.io/runtime-version: 16-ubi8
+  annotations:
+    openshift.io/host.generated: 'true'
+    - manager: openshift-router
+      operation: Update
+      apiVersion: route.openshift.io/v1
+      time: '2023-04-18T22:05:41Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:status':
+          'f:ingress': {}
+      subresource: status
+spec:
+  host: helloworld-argocd.apps.cluster-jjt6w.jjt6w.sandbox915.opentlc.com
+  to:
+    kind: Service
+    name: helloworld
+    weight: 100
+  port:
+    targetPort: 8080-tcp
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
